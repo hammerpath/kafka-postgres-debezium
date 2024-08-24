@@ -1,0 +1,15 @@
+{
+  "name": "pinger-consumer",
+  "version": "1.0.0",
+  "description": "pinger-consumer",
+  "main": "./src/index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "hammerpath",
+  "license": "ISC",
+  "dependencies": {
+    "kafkajs": "^2.2.4"
+  }
+}
