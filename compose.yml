@@ -19,7 +19,8 @@ services:
     image: pinger
     build: ./pinger
     depends_on:
-      - kafka
+      kafka:
+        condition: service_healthy
 
   pinger-consumer:
     image: pinger-consumer
@@ -28,14 +29,13 @@ services:
       DATABASE_URL: postgres://root:password@db:5432/ping_db
     depends_on:
       kafka:
-        condition: service_started         
+        condition: service_healthy
       db:
         condition: service_healthy
-    command: >
-      sh -c "npx prisma migrate deploy && node ."
+    command: sh -c "npx prisma migrate deploy && node ."
 
   zookeeper:
-    image: bitnami/zookeeper:latest
+    image: bitnami/zookeeper:3.9.2
     container_name: zookeeper
     environment:
       - ALLOW_ANONYMOUS_LOGIN=yes
@@ -43,7 +43,7 @@ services:
       - "2181:2181"
 
   kafka:
-    image: "bitnami/kafka:latest"
+    image: "bitnami/kafka:3.8"
     ports:
       - "9092:9092"
     environment:
@@ -54,6 +54,15 @@ services:
       - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
     depends_on:
       - zookeeper
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "kafka-topics.sh --bootstrap-server kafka:9092 --topic hc --create --if-not-exists && kafka-topics.sh --bootstrap-server kafka:9092 --topic hc --describe",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
 volumes:
   pgdata:

@@ -16,6 +16,7 @@ await consumer.subscribe({ topic: "ping", fromBeginning: true });
 
 await consumer.run({
   eachMessage: async ({ topic, partition, message }) => {
+    // TODO - start from the correct offset instead.
     if (
       !(await prisma.ping.findUnique({
         where: { value: parseInt(message.value.toString()) },
