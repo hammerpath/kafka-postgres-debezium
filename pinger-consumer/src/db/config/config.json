@@ -1,9 +1,0 @@
-{
-  "development": {
-    "username": "postgres",
-    "password": "password",
-    "database": "ping_db",
-    "host": "db",
-    "dialect": "postgres"
-  }
-}
