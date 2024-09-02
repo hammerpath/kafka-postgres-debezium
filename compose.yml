@@ -22,8 +22,10 @@ services:
     ports:
       - 8083:8083
     depends_on:
-      - kafka
-      - db
+      db:
+        condition: service_healthy
+      kafka:
+        condition: service_started
     environment:
       - BOOTSTRAP_SERVERS=kafka:9092
       - GROUP_ID=connect-db-cluster
@@ -31,6 +33,11 @@ services:
       - OFFSET_STORAGE_TOPIC=connect-db-offsets
       - STATUS_STORAGE_TOPIC=connect-db-status
       - ENABLE_DEBEZIUM_SCRIPTING=true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8083/"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
 
   zookeeper:
     image: bitnami/zookeeper:3.9.2
@@ -84,18 +91,25 @@ services:
         condition: service_healthy
     command: sh -c "npx prisma migrate deploy && node ."
 
+  pinger-db-producer:
+    image: pinger-db-producer
+    container_name: pinger-db-producer
+    build: ./pinger-db-producer
+    depends_on:
+      db-connector:
+        condition: service_healthy
+    command: sh -c "curl -i -X POST -H "Accept:application/json" -H "Content-Type:application/json" db-connector:8083/connectors/ --data @pg-source-config.json && node ."
+
 volumes:
   pgdata:
-# 1. provide easy way to reset the state of postgres and kafka
-
-# 2. use a volume for kafka to store the data:
+# 1. use a volume for kafka to store the data:
 # kafka:
 #   volumes:    - /path/to/kafka-persistence:/bitnami/kafka
 # NOTE: As this is a non-root container, the mounted files and directories must have the proper permissions for the UID 1001.
 
-# 3. fix health check for pinger
+# 2. fix health check for pinger
 # why can't I use a kafka health check for pinger?
 
-# 4. deploy to kubernetes
+# 3. deploy to kubernetes
 # https://hub.docker.com/r/bitnami/kafka
 

@@ -10,7 +10,7 @@ const producer = kafka.producer();
 await producer.connect();
 
 function count() {
-  let i = 1;
+  let i = 0;
   setInterval(async () => {
     await producer.send({
       topic: "ping",
