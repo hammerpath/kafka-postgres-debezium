@@ -1,0 +1,1 @@
+docker exec kafka /opt/bitnami/kafka/bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic connect-db-status --from-beginning

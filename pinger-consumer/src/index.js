@@ -27,12 +27,12 @@ await consumer.run({
       });
 
       console.log("added to db", ping);
+    } else {
+      console.log("message received", {
+        partition,
+        offset: message.offset,
+        value: message.value.toString(),
+      });
     }
-
-    console.log("message received", {
-      partition,
-      offset: message.offset,
-      value: message.value.toString(),
-    });
   },
 });

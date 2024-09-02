@@ -1,0 +1,1 @@
+docker exec db psql --username=root --dbname=ping_db --command='SHOW wal_level'

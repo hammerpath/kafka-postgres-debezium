@@ -1,6 +1,7 @@
 services:
   db:
-    image: postgres:16
+    image: debezium/postgres:16
+    container_name: db
     environment:
       POSTGRES_USER: root
       POSTGRES_PASSWORD: password
@@ -15,23 +16,21 @@ services:
       timeout: 5s
       retries: 5
 
-  pinger:
-    image: pinger
-    build: ./pinger
+  db-connector:
+    image: debezium/connect:2.7
+    container_name: db-connector
+    ports:
+      - 8083:8083
     depends_on:
       - kafka
-
-  pinger-consumer:
-    image: pinger-consumer
-    build: ./pinger-consumer
+      - db
     environment:
-      DATABASE_URL: postgres://root:password@db:5432/ping_db
-    depends_on:
-      kafka:
-        condition: service_healthy
-      db:
-        condition: service_healthy
-    command: sh -c "npx prisma migrate deploy && node ."
+      - BOOTSTRAP_SERVERS=kafka:9092
+      - GROUP_ID=connect-db-cluster
+      - CONFIG_STORAGE_TOPIC=connect-db-configs
+      - OFFSET_STORAGE_TOPIC=connect-db-offsets
+      - STATUS_STORAGE_TOPIC=connect-db-status
+      - ENABLE_DEBEZIUM_SCRIPTING=true
 
   zookeeper:
     image: bitnami/zookeeper:3.9.2
@@ -43,6 +42,7 @@ services:
 
   kafka:
     image: "bitnami/kafka:3.8"
+    container_name: kafka
     ports:
       - "9092:9092"
     environment:
@@ -54,7 +54,7 @@ services:
     depends_on:
       - zookeeper
     healthcheck:
-    # This is straight up copy paste from here https://github.com/bitnami/containers/issues/33325#issuecomment-1541443315
+      # This is straight up copy paste from here https://github.com/bitnami/containers/issues/33325#issuecomment-1541443315
       test:
         [
           "CMD-SHELL",
@@ -64,9 +64,28 @@ services:
       timeout: 5s
       retries: 5
 
+  pinger:
+    image: pinger
+    container_name: pinger
+    build: ./pinger
+    depends_on:
+      - kafka
+
+  pinger-consumer:
+    image: pinger-consumer
+    container_name: pinger-consumer
+    build: ./pinger-consumer
+    environment:
+      DATABASE_URL: postgres://root:password@db:5432/ping_db
+    depends_on:
+      kafka:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+    command: sh -c "npx prisma migrate deploy && node ."
+
 volumes:
   pgdata:
-
 # 1. provide easy way to reset the state of postgres and kafka
 
 # 2. use a volume for kafka to store the data:

@@ -1,1 +1,0 @@
-docker run --rm --name migration-postgres -e POSTGRES_USER=root -e POSTGRES_PASSWORD=password -e POSTGRES_DB=ping_db -p 5432:5432 postgres:16

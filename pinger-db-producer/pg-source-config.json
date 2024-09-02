@@ -1,0 +1,13 @@
+{
+  "name": "pinger-connector",
+  "config": {
+    "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+    "database.hostname": "db",
+    "database.port": "5432",
+    "database.user": "root",
+    "database.password": "password",
+    "database.dbname": "ping_db",
+    "topic.prefix": "cdc-ping",
+    "table.include.list": "public.Ping"
+  }
+}

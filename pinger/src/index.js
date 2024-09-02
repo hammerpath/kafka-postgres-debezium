@@ -4,7 +4,7 @@ const kafkaBrokers = ["kafka:9092"];
 
 const kafka = new Kafka({
   clientId: "pinger",
-  brokers: kafkaBrokers
+  brokers: kafkaBrokers,
 });
 const producer = kafka.producer();
 await producer.connect();
@@ -14,7 +14,7 @@ function count() {
   setInterval(async () => {
     await producer.send({
       topic: "ping",
-      messages: [{ value: i.toString() }]
+      messages: [{ value: i.toString() }],
     });
     i++;
   }, 1000);
