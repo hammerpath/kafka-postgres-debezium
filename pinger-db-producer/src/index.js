@@ -20,8 +20,8 @@ await consumer.run({
   eachMessage: async ({ topic, partition, message }) => {
     const jsonMessage = JSON.parse(message.value.toString());
     await producer.send({
-        topic: "web-ping",
-        messages: [{ value: jsonMessage.payload.after.value.toString() }],
-      });
+      topic: "web-ping",
+      messages: [{ value: jsonMessage.payload.after.value.toString() }],
+    });
   },
 });
