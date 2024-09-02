@@ -13,14 +13,15 @@ await consumer.subscribe({
   topic: "cdc-ping.public.Ping",
   fromBeginning: true,
 });
+const producer = kafka.producer();
+await producer.connect();
 
 await consumer.run({
   eachMessage: async ({ topic, partition, message }) => {
     const jsonMessage = JSON.parse(message.value.toString());
-    console.log("message received", {
-      partition,
-      offset: message.offset,
-      value: jsonMessage.payload.after.value,
-    });
+    await producer.send({
+        topic: "web-ping",
+        messages: [{ value: jsonMessage.payload.after.value.toString() }],
+      });
   },
 });
