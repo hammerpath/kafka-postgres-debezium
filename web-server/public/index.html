@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kafka Connect</title>
+    <style>
+      body,
+      html {
+        height: 100%;
+        margin: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      #message {
+        font-size: 9rem;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="message">Loading...</div>
+    <script>
+      // Create a new WebSocket connection to the server
+      const socket = new WebSocket("ws://localhost:8080");
+
+      // Listen for messages from the server
+      socket.onmessage = function (event) {
+        document.getElementById("message").innerText = event.data;
+      };
+    </script>
+  </body>
+</html>
